@@ -2,20 +2,15 @@ package org.example;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class MainUI extends JFrame {
-    private JButton fetchButton;
-    private JButton insertButton;
-    private JButton updateButton;
-    private JButton deleteButton;
+    private JButton fetchButton, insertButton, updateButton, deleteButton;
     private JTextArea dataTextArea;
-
-    private Connection connection;
     private DataManipulator dataManipulator;
 
     public MainUI(Connection connection) {
-        this.connection = connection;
-        this.dataManipulator = new DataManipulator(connection);
+        dataManipulator = new DataManipulator(connection);
         initializeUI();
     }
 
@@ -42,30 +37,58 @@ public class MainUI extends JFrame {
         add(buttonPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
 
-        pack();
-        setLocationRelativeTo(null);
-
-        // Asignamos acciones a los botones
         fetchButton.addActionListener(e -> fetchData());
         insertButton.addActionListener(e -> insertData());
         updateButton.addActionListener(e -> updateData());
         deleteButton.addActionListener(e -> deleteData());
+
+        pack();
+        setLocationRelativeTo(null);
     }
 
     private void fetchData() {
-        // Implementaremos esta lógica más adelante
+        try {
+            dataTextArea.setText(dataManipulator.fetchData());
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void insertData() {
-        // Implementaremos esta lógica más adelante
+        String newData = JOptionPane.showInputDialog(this, "Ingresa los datos");
+        if (newData != null && !newData.isEmpty()) {
+            try {
+                dataManipulator.insertData(newData);
+                fetchData();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private void updateData() {
-        // Implementaremos esta lógica más adelante
+    String id = JOptionPane.showInputDialog(this, "Ingresa el id a modificar:");
+    String newData = JOptionPane.showInputDialog(this, "Ingresa el dato nuevo:");
+        if (id != null && !id.isEmpty() && newData != null && !newData.isEmpty()) {
+        try {
+            dataManipulator.updateData(Integer.parseInt(id), newData);
+            fetchData();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        }
     }
 
     private void deleteData() {
-        // Implementaremos esta lógica más adelante
+    String id = JOptionPane.showInputDialog(this, "Ingresa el id a borrar:");
+        if (id != null && !id.isEmpty()) {
+            try {
+                dataManipulator.deleteData(Integer.parseInt(id));
+                fetchData();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 }
 

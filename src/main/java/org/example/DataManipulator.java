@@ -1,104 +1,50 @@
 package org.example;
-import javax.swing.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DataManipulator {
     private Connection connection;
-    private JTextArea dataTextArea;
 
     public DataManipulator(Connection connection) {
         this.connection = connection;
     }
-
     // Método para obtener datos de la base de datos
-    public void fetchData() throws SQLException {
-        try {
-        // Preparar la consulta SQL
-        String query = "SELECT * FROM products";
-        PreparedStatement statement = connection.prepareStatement(query);
+    public String fetchData() throws SQLException {
+        StringBuilder data = new StringBuilder();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM products");
 
-        // Ejecutar la consulta
-        ResultSet resultSet = statement.executeQuery();
-
-        // Limpiar el área de texto antes de mostrar los nuevos datos
-        dataTextArea.setText("");
-
-        // Mostrar los datos en el área de texto
         while (resultSet.next()) {
-            // Leer los valores de cada fila y mostrarlos en el área de texto
-            int id = resultSet.getInt("id");
-            String data = resultSet.getString("dato");
-            dataTextArea.append("ID: " + id + ", Dato: " + data + "\n");
+            data.append("ID: ").append(resultSet.getInt("id"))
+                    .append(", Dato: ").append(resultSet.getString("dato"))
+                    .append("\n");
         }
-
         // Cerrar recursos
         resultSet.close();
         statement.close();
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return data.toString();
     }
-
-
 
     // Método para insertar datos en la base de datos
-    public void insertData(String newData) {
-        try {
-            // Preparar la consulta SQL para insertar nuevos datos
-            String query = "INSERT INTO products (dato) VALUES (?)";
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, newData);
-
-            // Ejecutar la consulta
-            statement.executeUpdate();
-
-            // Cerrar recursos
-            statement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public void insertData(String newData) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO products (dato) VALUES (?)");
+        statement.setString(1, newData);
+        statement.executeUpdate();
+        statement.close();
     }
-
     // Método para actualizar datos en la base de datos
-    public void updateData(int id, String updatedData) {
-            try {
-                // Preparar la consulta SQL para actualizar datos
-                String query = "UPDATE products SET dato = ? WHERE id = ?";
-                PreparedStatement statement = connection.prepareStatement(query);
-                statement.setString(1, updatedData);
-                statement.setInt(2, id);
-
-                // Ejecutar la consulta
-                statement.executeUpdate();
-
-                // Cerrar recursos
-                statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
+    public void updateData(int id, String newData) throws SQLException {
+    PreparedStatement statement = connection.prepareStatement("UPDATE products SET dato=? WHERE ID=?");
+    statement.setString(1,newData);
+    statement.setInt(2, id);
+    statement.close();
     }
-
     // Método para eliminar datos de la base de datos
-    public void deleteData(int id) {
-        try {
-            // Preparar la consulta SQL para eliminar datos
-            String query = "DELETE FROM products WHERE id = ?";
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, id);
-
-            // Ejecutar la consulta
-            statement.executeUpdate();
-
-            // Cerrar recursos
-            statement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public void deleteData(int id) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("DELETE FROM products WHERE ID=?");
+        statement.setInt(1, id);
+        statement.executeUpdate();
+        statement.close();
     }
-    }
+}
 
 
